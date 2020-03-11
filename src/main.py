@@ -4,11 +4,13 @@ sys.path = sys.path + ['src']
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 import src.logic.logic as logic
+import src.db.connection.DBCreator as db_creator
 
 
-class ExampleApp(QMainWindow, logic.Main):
+class ExampleApp(QMainWindow, logic.Main, db_creator.DBCreator):
     def __init__(self):
         # noinspection PyArgumentList
+        db_creator.DBCreator.__init__(self)
         QMainWindow.__init__(self)
         logic.Main.__init__(self)
         # создание виджетов в MainForm (если что переопределить в logic.Main)

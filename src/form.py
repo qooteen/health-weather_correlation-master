@@ -8,6 +8,14 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+class SecondWindow(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        # Передаём ссылку на родительский элемент и чтобы виджет
+        # отображался как самостоятельное окно указываем тип окна
+        self.mainLayout = QtWidgets.QWidget()
+        super().__init__(parent, QtCore.Qt.Window)
+
+
 class Ui_MainBaseForm(object):
     def setupUi(self, MainBaseForm):
         MainBaseForm.setObjectName("MainBaseForm")
@@ -130,15 +138,25 @@ class Ui_MainBaseForm(object):
         self.lead_label.setFont(font)
         self.lead_label.setAlignment(QtCore.Qt.AlignCenter)
         self.lead_label.setObjectName("lead_label")
+        self.from_date = QtWidgets.QDateEdit(MainBaseForm)
+        self.to_date = QtWidgets.QDateEdit(MainBaseForm)
         self.from_label = QtWidgets.QLabel(MainBaseForm)
+        self.to_label = QtWidgets.QLabel(MainBaseForm)
+        sizePolicy.setHeightForWidth(self.from_label.sizePolicy().hasHeightForWidth())
+        self.to_label.setMaximumSize(QtCore.QSize(23, 23))
+        self.to_label.setFont(font)
+        self.to_label.setObjectName("to_label")
         sizePolicy.setHeightForWidth(self.from_label.sizePolicy().hasHeightForWidth())
         self.from_label.setSizePolicy(sizePolicy)
         self.from_label.setFont(font)
         self.from_label.setAlignment(QtCore.Qt.AlignCenter)
         self.from_label.setObjectName("from_label")
         self.common_layout.addWidget(self.from_label)
+        self.common_layout.addWidget(self.from_date)
         self.lead_box = QtWidgets.QComboBox(MainBaseForm)
         self.lead_box.setObjectName("lead_box")
+        self.common_layout.addWidget(self.to_label)
+        self.common_layout.addWidget(self.to_date)
         self.common_layout.addWidget(self.lead_label)
         self.common_layout.addWidget(self.lead_box)
         self.slave_label = QtWidgets.QLabel(MainBaseForm)
@@ -210,5 +228,7 @@ class Ui_MainBaseForm(object):
         self.report_btn.setText(_translate("MainBaseForm", "Сформировать отчет"))
         self.report_group_btn.setText(_translate("MainBaseForm", "Сформировать групповой отчет"))
         self.from_label.setText(_translate("MainBaseForm", "Выбрать ряды с"))
+        self.to_label.setText(_translate("MainBaseForm", "по"))
+
 
 

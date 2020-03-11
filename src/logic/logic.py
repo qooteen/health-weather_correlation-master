@@ -2,10 +2,11 @@ import os
 import sys
 import matplotlib
 
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QHBoxLayout, QWidget, QLabel, QMainWindow, QTextEdit
 from PyQt5.QtCore import QEvent, Qt
 
-from form import Ui_MainBaseForm
+from form import Ui_MainBaseForm, SecondWindow
 
 from science import ClassesError, ScienceError
 from science.classes import *
@@ -17,12 +18,18 @@ from logic.sample import QFrameSampleStd  # , QFrameMulSamplesStd
 from logic import PATH_SAMPLES
 from logic.utils import QFrameDefault
 
+from src.frames.utils.popup_creation import Ui_Form
+
 matplotlib.use("Qt5Agg")
 
 
-class Main(Ui_MainBaseForm):
+class Main(Ui_MainBaseForm, Ui_Form):
     # noinspection PyArgumentList,PyUnresolvedReferences
     def __init__(self):
+        self.popupWin = None
+        self.ui = Ui_Form()
+        self.popupWin = QtWidgets.QWidget()
+        self.ui.setupUi(self.popupWin)
         self.dummy = QWidget()
         self.horizontalLayout = QHBoxLayout(self.dummy)
         self.setCentralWidget(self.dummy)
@@ -31,13 +38,16 @@ class Main(Ui_MainBaseForm):
         # для автоскейлинга графиков
         set_main_window(self)
 
+    def open_creation_popup(self):
+        self.popupWin.show()
+
     # noinspection PyUnresolvedReferences
     def start(self):
-        # Создание/удаление эталона
-        self.add_std_btn.clicked.connect(self.add_std_btn_clicked)
+        # Создание пациента
+        self.add_sample_btn.clicked.connect(self.open_creation_popup)
         #self.del_std_btn.clicked.connect(self.del_std_btn_clicked)
-        # Создание/удаление пациента
-        self.add_sample_btn.clicked.connect(self.add_sample_btn_clicked)
+        # Создание эталона
+        self.add_std_btn.clicked.connect(self.add_sample_btn_clicked)
         #self.del_sample_btn.clicked.connect(self.del_sample_btn_clicked)
         # Кастомные фреймы
         self.lead_box.activated.connect(self.lead_box_activated)
