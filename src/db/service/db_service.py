@@ -8,13 +8,13 @@ class Service:
         cur = con.cursor()
         cur.execute('INSERT INTO patients(name, surname, patronymic, age, sex, birthday, stay_in_north'
                     ', part_in_geliomed, obesity, weight, height, imt, alcohol, physical_inactivity, monitoring_point'
-                    ', nationality, birth_place, smoking, ag__heredity, sss_heredity) '
+                    ', nationality, birth_place, smoking, ag_heredity, sss_heredity) '
                     'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     (params['name'], params['surname'], params['patronymic'], params['age'], params['sex']
                      , params['birthday'], params['stay_in_north'], params['part_in_geliomed'], params['obesity']
                      , params['weight'], params['height'], params['imt'], params['alcohol']
                      , params['physical_inactivity'], params['monitoring_point'], params['nationality']
-                     , params['birth_place'], params['smoking'], params['ag__heredity'], params['sss_heredity']))
+                     , params['birth_place'], params['smoking'], params['ag_heredity'], params['sss_heredity']))
         con.commit()
         con.close()
 

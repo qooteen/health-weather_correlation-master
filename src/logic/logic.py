@@ -103,14 +103,14 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         nationality = self.ui.lineEdit_nation.text()
         birth_place = self.ui.lineEdit_birth_place.text()
         smoking = self.ui.lineEdit_smoke.text()
-        ag__heredity = self.ui.lineEdit_ag.text()
+        ag_heredity = self.ui.lineEdit_ag.text()
         sss_heredity = self.ui.lineEdit_sss.text()
         params = {'name': name, 'surname': surname, 'patronymic': patronymic, 'age': age, 'sex': sex,
                   'birthday': birthday, 'stay_in_north': stay_in_north, 'part_in_geliomed': part_in_geliomed,
                   'obesity': obesity, 'weight': weight, 'height': height, 'imt': imt, 'alcohol': alcohol,
                   'physical_inactivity': physical_inactivity, 'monitoring_point': monitoring_point,
                   'nationality': nationality, 'birth_place': birth_place, 'smoking': smoking,
-                  'ag_heredity': ag__heredity, 'sss_heredity': sss_heredity}
+                  'ag_heredity': ag_heredity, 'sss_heredity': sss_heredity}
         Service.add_main_patients_params(params)
         self.clear_params()
         self.update_boxes()
@@ -134,7 +134,6 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         self.ui.lineEdit_north.clear()
         self.ui.date_birth.clear()
         self.ui.lineEdit_sss.clear()
-        self.ui.date_birth.clear()
 
     def add_sample(self, fname):
         try:
