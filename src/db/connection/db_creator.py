@@ -7,6 +7,7 @@ class DBCreator:
         self.con = sqlite3.connect('health_weather_correlation.db')
         self.create_tables()
         self.con.commit()
+        self.con.close()
 
     def create_tables(self):
         cur = self.con.cursor()
@@ -29,7 +30,7 @@ class DBCreator:
                     'nationality TEXT,'
                     'birth_place TEXT,'
                     'smoking TEXT,'
-                    'ag__heredity TEXT,'
+                    'ag_heredity TEXT,'
                     'sss_heredity TEXT)')
 
         cur.execute('CREATE TABLE IF NOT EXISTS weather_measurements(weather_measurement_id '
@@ -38,16 +39,16 @@ class DBCreator:
                     'surface_wind_speed REAL,'
                     'surface_temp REAL,'
                     'surface_wet REAL,'
-                    'surface_press INTEGER,'
+                    'surface_press REAL,'
                     'bx_mmp REAL,'
                     'by_mmp REAL,'
                     'bz_mmp REAL,'
                     'b_vector_mmp REAL,'
                     'proton_density REAL,'
-                    'plasma_speed INTEGER,'
+                    'plasma_speed REAL,'
                     'press_sun_wind REAL,'
                     'kp_index REAL,'
-                    'radio_emission INTEGER,'
+                    'radio_emission REAL,'
                     'xray_sun_one REAL,'
                     'xray_sun_two REAL,'
                     'ultraviolet_a REAL,'
@@ -56,7 +57,7 @@ class DBCreator:
 
         cur.execute('CREATE TABLE IF NOT EXISTS health_measurements(health_measurement_id '
                     'INTEGER PRIMARY KEY AUTOINCREMENT,'
-                    'datetime NUMERIC,'
+                    'date NUMERIC,'
                     'upper_arterial_pressure INTEGER,'
                     'lower_arterial_pressure INTEGER,'
                     'chss REAL,'
@@ -65,6 +66,7 @@ class DBCreator:
                     'symmetry REAL,'
                     'patient_id INTEGER,'
                     'patients_state TEXT,'
+                    'physical_state TEXT,'
                     'FOREIGN KEY (patient_id) REFERENCES patients(patient_id))')
 
         cur.execute('CREATE TABLE IF NOT EXISTS polymorphisms(polymorphism_id '

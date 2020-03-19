@@ -32,24 +32,32 @@ def file_base_name(filename: str):
     return os.path.splitext(os.path.basename(filename))[0]
 
 
-def read_sample(filename):
-    """Чтение эталонов"""
+def read_xlsx_std(filename):
     try:
-        with open(filename) as file:
-            #массив данных с файла эталона
-            data = [row.strip() for row in file]
+        #для чтения xlsx
+        wb = load_workbook(filename=filename)
     except Exception:
-        raise ParseError("Невозможно открыть файл эталона {}"
+        raise ParseError("Невозможно открыть файл образца {}"
                          "\nВозможно он открыт в другой программе".format(filename))
+    #инициализация листа с информацией о пациенте из xlsx
+    sheet = wb.get_active_sheet()
+    datas = []
+    rows = sheet.max_row
 
-    for idx, el in enumerate(data):
-        try:
-            # проверка типа, флоат ли это или нет
-            data[idx] = float(el)
-        except ValueError:
-            raise ParseError("Невозможно распознать строку {} в файле {}: убедитесь, что там записано число "
-                             "(дробная часть отделяется точкой)".format(idx + 1, filename))
-    return data
+    for i in range(2, rows + 1):
+        data = []
+        for j in range(1, 19 + 1):
+            try:
+                cell = sheet.cell(row=i, column=j)
+                if sheet.cell(1, j).value == "date":
+                    data.append(str(cell.value))
+                else:
+                    data.append(float(cell.value))
+            except Exception:
+                raise ParseError('Ошибка при обработке файла {}\nСтраница {}, ячейка {}{}'
+                                 .format(filename, sheet.title, 'ABCDEFGHI'[i], j))
+        datas.append(data)
+    return datas
 
 
 def read_xlsx_sample(filename):
@@ -63,16 +71,21 @@ def read_xlsx_sample(filename):
     sheet = wb.get_active_sheet()
 
     datas = []
-    for col in range(1, 4 + 1):
-        data, row = [], 1
-        while sheet.cell(row, col).value is not None and sheet.cell(row, col).value.strip():
+
+    rows = sheet.max_row
+
+    for i in range(2, rows + 1):
+        data = []
+        for j in range(1, 8 + 1):
             try:
-                #вытаскивает значение из очередной колонки и пишет в массив
-                data.append(float(sheet.cell(row, col).value))
+                cell = sheet.cell(row=i, column=j)
+                if sheet.cell(1, j).value == "date":
+                    data.append(str(cell.value))
+                else:
+                    data.append(float(cell.value))
             except Exception:
                 raise ParseError('Ошибка при обработке файла {}\nСтраница {}, ячейка {}{}'
-                                 .format(filename, sheet.title, 'ABCD'[col], row))
-            row += 1
+                                 .format(filename, sheet.title, 'ABCDEFGHI'[i], j))
         datas.append(data)
     return datas
 
@@ -89,7 +102,3 @@ def plot_image(plot_func, *args, **kwargs):
         return buffer
     else:
         return buffer.getvalue()
-
-
-if __name__ == '__main__':
-    print('\n'.join(map(str, read_xlsx_sample("samples/1_3.xlsx"))))

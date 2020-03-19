@@ -1,38 +1,44 @@
-import os
 import sys
 import matplotlib
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QHBoxLayout, QWidget, QLabel, QMainWindow, QTextEdit
 from PyQt5.QtCore import QEvent, Qt
-
-from form import Ui_MainBaseForm, SecondWindow
-
-from science import ClassesError, ScienceError
-from science.classes import *
-
-from logic import dialog_open, set_main_window, error_dialog
-from logic.standard import QFrameStdSample, QFrameStdMulSamples
-from logic.sample import QFrameSampleStd  # , QFrameMulSamplesStd
-
-from logic import PATH_SAMPLES
-from logic.utils import QFrameDefault
-
+from src.form import Ui_MainBaseForm
+from src.science import ClassesError, ScienceError
+from src.science.classes import *
+from src.logic import dialog_open, set_main_window, error_dialog
+from src.logic.standard import QFrameStdSample, QFrameStdMulSamples
+from src.logic.sample import QFrameSampleStd
+from src.logic.utils import QFrameDefault
 from src.frames.utils.popup_creation import Ui_Form
+from src.frames.utils.popup_update import Ui_Form_update
+from src.db.service.db_service import Service
+
+SAMPLE_ITEMS = ['Приземная скорость ветра', 'Приземная температура', 'Приземная влажность',
+                'Приземное давление', 'BX', 'BY', 'BZ', 'B-Vector', 'Плотность протонов солнеччного ветра',
+                'Скорость плазмы солнечного ветра', 'Давление солнечного ветра', 'КР', 'Радиоизлучение',
+                'Рентгеновское излучение Солнца-1', 'Рентгеновское излучение Солнца-2', 'Ультрофиолет-A',
+                'Ультрофиолет-A', 'Ультрофиолет-B', 'Ультрофиолет-C']
 
 matplotlib.use("Qt5Agg")
 
 
-class Main(Ui_MainBaseForm, Ui_Form):
+class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
     # noinspection PyArgumentList,PyUnresolvedReferences
     def __init__(self):
         self.popupWin = None
         self.ui = Ui_Form()
+        self.ui_update = Ui_Form_update()
         self.popupWin = QtWidgets.QWidget()
+        self.popupUpdate = QtWidgets.QWidget()
+        self.ui_update.setupUi(self.popupUpdate)
         self.ui.setupUi(self.popupWin)
         self.dummy = QWidget()
         self.horizontalLayout = QHBoxLayout(self.dummy)
         self.setCentralWidget(self.dummy)
+        self.samples_list = []
+        self.stds_list = []
         # фрейм данных
         self.data_frame = None
         # для автоскейлинга графиков
@@ -41,67 +47,141 @@ class Main(Ui_MainBaseForm, Ui_Form):
     def open_creation_popup(self):
         self.popupWin.show()
 
+    def close_creation_popup(self):
+        self.popupWin.close()
+
+    def open_update_popup(self):
+        self.ui_update.sampels_box.clear()
+        data = Service.get_all_patients_full_name()
+        self.ui_update.sampels_box.addItems(data)
+        self.popupUpdate.show()
+
     # noinspection PyUnresolvedReferences
     def start(self):
         # Создание пациента
         self.add_sample_btn.clicked.connect(self.open_creation_popup)
-        #self.del_std_btn.clicked.connect(self.del_std_btn_clicked)
         # Создание эталона
-        self.add_std_btn.clicked.connect(self.add_sample_btn_clicked)
-        #self.del_sample_btn.clicked.connect(self.del_sample_btn_clicked)
+        self.add_std_btn.clicked.connect(self.add_std_btn_clicked)
         # Кастомные фреймы
         self.lead_box.activated.connect(self.lead_box_activated)
         self.slave_box.activated.connect(self.choose_data_frame)
+        self.from_date.dateChanged.connect(self.update_boxes)
+        self.to_date.dateChanged.connect(self.update_boxes)
         # Отчет
         self.report_btn.clicked.connect(self.report_btn_clicked)
         self.report_group_btn.clicked.connect(self.report_group_btn_clicked)
 
+        # Кнопки
+        self.ui.pushButton.clicked.connect(self.set_creation_popup_params)
+        self.ui.pushButton_2.clicked.connect(self.close_creation_popup)
+        self.pushButton_add.clicked.connect(self.open_update_popup)
+        self.ui_update.pushButton.clicked.connect(self.add_sample_btn_clicked)
+
+        # Обновление боксов и фрейма данных
         self.set_data_frame(QFrameDefault)
+        self.update_boxes()
         self.show()
-        # тестовый скрипт (для удобства)
-        # self.startup()
 
-    # def startup(self):
-    #     if PATH_SAMPLES is not None:
-    #         for group in '123':
-    #             for idx in '123456':
-    #                 self.add_sample(os.path.join(PATH_SAMPLES, '{}_{}.xlsx'.format(group, idx)))
-    #         for entry in sorted(os.listdir(PATH_SAMPLES)):
-    #             if entry[-3:] == 'txt':
-    #                 self.add_std(os.path.join(PATH_SAMPLES, entry))
+    def set_creation_popup_params(self):
+        name = self.ui.lineEdit_name.text()
+        surname = self.ui.lineEdit_surname.text()
+        patronymic = self.ui.lineEdit_patr.text()
+        age = self.ui.lineEdit_age.text()
+        sex = self.ui.radioButton_sex.text() \
+            if self.ui.radioButton_sex2.text() is None else self.ui.radioButton_sex2.text()
+        birthday = self.ui.date_birth.text()
+        stay_in_north = self.ui.lineEdit_north.text()
+        part_in_geliomed = self.ui.lineEdit_geliomed.text()
+        obesity = self.ui.checkBox_obesity.checkState()
+        weight = self.ui.lineEdit_weight.text()
+        height = self.ui.lineEdit_height.text()
+        imt = self.ui.lineEdit_imt.text()
+        alcohol = self.ui.lineEdit_alco.text()
+        physical_inactivity = self.ui.checkBox_gipo.checkState()
+        monitoring_point = self.ui.lineEdit_mon_point.text()
+        nationality = self.ui.lineEdit_nation.text()
+        birth_place = self.ui.lineEdit_birth_place.text()
+        smoking = self.ui.lineEdit_smoke.text()
+        ag__heredity = self.ui.lineEdit_ag.text()
+        sss_heredity = self.ui.lineEdit_sss.text()
+        params = {'name': name, 'surname': surname, 'patronymic': patronymic, 'age': age, 'sex': sex,
+                  'birthday': birthday, 'stay_in_north': stay_in_north, 'part_in_geliomed': part_in_geliomed,
+                  'obesity': obesity, 'weight': weight, 'height': height, 'imt': imt, 'alcohol': alcohol,
+                  'physical_inactivity': physical_inactivity, 'monitoring_point': monitoring_point,
+                  'nationality': nationality, 'birth_place': birth_place, 'smoking': smoking,
+                  'ag_heredity': ag__heredity, 'sss_heredity': sss_heredity}
+        Service.add_main_patients_params(params)
+        self.clear_params()
+        self.update_boxes()
+        self.popupWin.close()
 
-    # def add_sample(self, fname):
-    #     try:
-    #         sample = Sample.from_file(fname)
-    #     except ClassesError as e:
-    #         error_dialog(e)
-    #         return
-    #     except Exception as e:
-    #         error_dialog(e, unknown=True)
-    #         return
-    #     if self.sample_list.count() == 0:
-    #         self.sample_list.addItem("--Групповой--")
-    #     self.sample_list.insertItem(self.sample_list.count() - 1, sample.name)
-    #     # self.update_boxes()
+    def clear_params(self):
+        self.ui.lineEdit_name.clear()
+        self.ui.lineEdit_surname.clear()
+        self.ui.lineEdit_patr.clear()
+        self.ui.lineEdit_ag.clear()
+        self.ui.lineEdit_smoke.clear()
+        self.ui.lineEdit_birth_place.clear()
+        self.ui.lineEdit_nation.clear()
+        self.ui.lineEdit_mon_point.clear()
+        self.ui.lineEdit_alco.clear()
+        self.ui.lineEdit_age.clear()
+        self.ui.lineEdit_imt.clear()
+        self.ui.lineEdit_height.clear()
+        self.ui.lineEdit_weight.clear()
+        self.ui.lineEdit_geliomed.clear()
+        self.ui.lineEdit_north.clear()
+        self.ui.date_birth.clear()
+        self.ui.lineEdit_sss.clear()
 
-    def add_std(self, fname):
+    def add_sample(self, fname):
         try:
-            std = Standard.from_file(fname)
+            datas = science.read_xlsx_sample(fname)
         except ClassesError as e:
             error_dialog(e)
             return
         except Exception as e:
             error_dialog(e, unknown=True)
             return
-        # self.std_list.addItem(std.name)
-        # self.update_boxes()
+        patients_id = self.ui_update.sampels_box.currentText().split('(')[1].split(')')[0]
+        for data in datas:
+            Service.add_health_measurements_params(data, patients_id)
+        self.update_boxes()
 
-    # def update_boxes(self):
-    #     self.lead_box.clear()
-    #     self.slave_box.clear()
-    #     std_items = ["Погода: " + str(self.std_list.item(i).text()) for i in range(self.std_list.count())]
-    #     sample_items = ["Образец: " + str(self.sample_list.item(i).text()) for i in range(self.sample_list.count())]
-    #     self.lead_box.addItems(std_items + sample_items)
+    def add_std(self, fname):
+        try:
+            datas = science.read_xlsx_std(fname)
+        except ClassesError as e:
+            error_dialog(e)
+            return
+        except Exception as e:
+            error_dialog(e, unknown=True)
+            return
+        for data in datas:
+            Service.add_weather_measurements_params(data)
+        self.update_boxes()
+
+    def update_boxes(self):
+
+        self.from_date.text()
+        self.to_date.text()
+        std_items = []
+        self.lead_box.clear()
+        self.slave_box.clear()
+        from_date = self.from_date.text()
+        to_date = self.to_date.text()
+        self.samples_list = Service.get_all_patients_full_name_date_filter(from_date, to_date)
+        if int(Service.get_all_weather_date_filter_count(from_date, to_date)) != 0:
+            self.stds_list = SAMPLE_ITEMS
+        else:
+            self.stds_list = []
+        if len(self.samples_list) == 0:
+            self.samples_list.append("--Групповой--")
+        if self.stds_list is not None:
+            std_items = ["Погода: " + str(self.stds_list[i]) for i in range(len(self.stds_list))]
+        if self.samples_list is not None:
+            sample_items = ["Образец: " + str(self.samples_list[i]) for i in range(len(self.samples_list))]
+        self.lead_box.addItems(std_items + sample_items)
 
     def set_data_frame(self, frame_class, *args):
         if self.data_frame is not None:
@@ -141,8 +221,6 @@ class Main(Ui_MainBaseForm, Ui_Form):
         else:
             if (lead in Sample.samples or lead == "--Групповой--") and slave in Standard.standards:
                 self.set_data_frame(QFrameSampleStd, lead, slave)
-            # elif lead == "--Группа--" and slave in Standard.standards:
-            #     self.set_data_frame(QFrameMulSamplesStd, slave)
             else:
                 error_dialog("Необработанный случай выбора фрейма: lead={}, slave={}, orient={}"
                              .format(lead, slave, orientation), unknown=True)
@@ -151,9 +229,9 @@ class Main(Ui_MainBaseForm, Ui_Form):
     def lead_box_activated(self):
         lead_type = self.lead_box.currentText().split(' ')[0]
         if lead_type == 'Образец:':
-            items = ["Погода: " + str(self.std_list.item(i).text()) for i in range(self.std_list.count())]
+            items = ["Погода: " + str(self.stds_list[i]) for i in range(len(self.stds_list))]
         elif lead_type == 'Погода:':
-            items = ["Образец: " + str(self.sample_list.item(i).text()) for i in range(self.sample_list.count())] + \
+            items = ["Образец: " + str(self.samples_list[i]) for i in range(len(self.samples_list))] + \
                     ["Образец: --Группа--"]
         else:
             error_dialog("Неизвестный тип данных в боксе: {}".format(lead_type), unknown=True)
@@ -167,52 +245,16 @@ class Main(Ui_MainBaseForm, Ui_Form):
         self.slave_box.addItems(items)
 
     def add_std_btn_clicked(self):
-        fnames = dialog_open("Выбрать эталон", "txt")
+        fnames = dialog_open("Выбрать эталон", "xlsx")
         if fnames:
             for fname in fnames:
                 self.add_std(fname)
-
-    def del_std_btn_clicked(self):
-        std = self.std_list.currentItem()
-        if self.std_list.count() == 0:
-            return
-        if std is None:
-            error_dialog("Выберите эталон для удаления!")
-            return
-        std = std.text()
-        self.std_list.takeItem(self.std_list.currentRow())
-        Standard.delete(Standard.standards[std])
-        self.set_data_frame(QFrameDefault)
-        self.update_boxes()
 
     def add_sample_btn_clicked(self):
         fnames = dialog_open("Выбрать файл пациента", "xlsx")
         if fnames:
             for fname in fnames:
                 self.add_sample(fname)
-
-    def del_sample_btn_clicked(self):
-        sample = self.sample_list.currentItem()
-        if self.sample_list.count() == 0:
-            return
-        if sample is None:
-            error_dialog("Выберите пациента для удаления!")
-            return
-        sample = sample.text()
-        if sample == "--Групповой--":
-            # error_dialog("Невозможно удалить групповой образец!")
-            return
-        try:
-            Sample.delete(Sample.samples[sample])
-        except ClassesError as e:
-            error_dialog(e)
-        except Exception as e:
-            error_dialog(e, unknown=True)
-        self.sample_list.takeItem(self.sample_list.currentRow())
-        if self.sample_list.count() == 1:
-            self.sample_list.clear()
-        self.set_data_frame(QFrameDefault)
-        self.update_boxes()
 
     def report_btn_clicked(self):
         if self.data_frame is not None and hasattr(self.data_frame, "save_report"):

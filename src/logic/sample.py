@@ -1,19 +1,19 @@
 # Ведущий ряд - образец
-from logic import QFrameBase, dialog_save_report
-from logic.utils import QFrameStandardType, QDialogStds
+from src.logic import QFrameBase, dialog_save_report
+from src.logic.utils import QFrameStandardType, QDialogStds
 
-from frames.standard import Ui_FrameStandard
+from src.frames.standard import Ui_FrameStandard
 
-from science import FACTORS_ALL
-from science.classes import Standard, Sample
+from src.science import FACTORS_ALL
+from src.science.classes import Standard, Sample
 
-from reports import Printer
+from src.reports import Printer
 # Для QFrameSampleStd
-from reports.sample import FactorSampleStandard, SampleStandard
-from reports.sample_mul import FactorSampleMulStandards, SampleMulStandards
+from src.reports.sample import FactorSampleStandard, SampleStandard
+from src.reports.sample_mul import FactorSampleMulStandards, SampleMulStandards
 # Для QFrameMulSamplesStd
-from reports.sample_mul import MulFactorSamplesStandard, MulSamplesStandard
-from reports.sample_mul import MulFactorSamplesMulStandards, MulSamplesMulStandards
+from src.reports.sample_mul import MulFactorSamplesStandard, MulSamplesStandard
+from src.reports.sample_mul import MulFactorSamplesMulStandards, MulSamplesMulStandards
 
 
 class QFrameSampleStd(QFrameBase, Ui_FrameStandard):

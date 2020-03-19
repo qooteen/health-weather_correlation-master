@@ -52,6 +52,14 @@ class Ui_MainBaseForm(object):
         self.add_std_btn.setSizePolicy(sizePolicy)
         self.add_std_btn.setMaximumSize(QtCore.QSize(150, 16777215))
         self.add_std_btn.setObjectName("add_std_btn")
+        self.pushButton_add = QtWidgets.QPushButton(MainBaseForm)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.add_std_btn.sizePolicy().hasHeightForWidth())
+        self.pushButton_add.setSizePolicy(sizePolicy)
+        self.pushButton_add.setMaximumSize(QtCore.QSize(2000, 100))
+        self.pushButton_add.setObjectName("pushButton_add")
         #self.ref_layout.addWidget(self.add_std_btn, 2, 0, 1, 1)
         #self.del_std_btn = QtWidgets.QPushButton(MainBaseForm)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
@@ -196,6 +204,7 @@ class Ui_MainBaseForm(object):
         self.report_btn.setObjectName("report_btn")
         self.horizontalLayout_2.addWidget(self.add_sample_btn)
         self.horizontalLayout_2.addWidget(self.add_std_btn)
+        self.horizontalLayout_2.addWidget(self.pushButton_add)
         self.horizontalLayout_2.addWidget(self.report_btn)
         self.report_group_btn = QtWidgets.QPushButton(MainBaseForm)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -229,6 +238,8 @@ class Ui_MainBaseForm(object):
         self.report_group_btn.setText(_translate("MainBaseForm", "Сформировать групповой отчет"))
         self.from_label.setText(_translate("MainBaseForm", "Выбрать ряды с"))
         self.to_label.setText(_translate("MainBaseForm", "по"))
+        self.pushButton_add.setText(_translate("Form", "Добавить Показатели Пациента"))
+
 
 
 

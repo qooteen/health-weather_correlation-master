@@ -4,7 +4,7 @@ sys.path = sys.path + ['src']
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
 import src.logic.logic as logic
-import src.db.connection.DBCreator as db_creator
+import src.db.connection.db_creator as db_creator
 
 
 class ExampleApp(QMainWindow, logic.Main, db_creator.DBCreator):
