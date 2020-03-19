@@ -48,6 +48,7 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         self.popupWin.show()
 
     def close_creation_popup(self):
+        self.clear_params()
         self.popupWin.close()
 
     def open_update_popup(self):
@@ -133,6 +134,7 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         self.ui.lineEdit_north.clear()
         self.ui.date_birth.clear()
         self.ui.lineEdit_sss.clear()
+        self.ui.date_birth.clear()
 
     def add_sample(self, fname):
         try:

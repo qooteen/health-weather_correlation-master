@@ -74,7 +74,7 @@ class Service:
         dt_to = datetime.strptime(to_date, '%d.%m.%Y')
 
         cur.execute('SELECT DISTINCT(p.patient_id), p.surname, p.name, p.patronymic FROM patients p,'
-                    ' health_measurements h where p.patient_id = h.patient_id and h.datetime >= ? and h.datetime <= ?'
+                    ' health_measurements h where p.patient_id = h.patient_id and h.date >= ? and h.date <= ?'
                     , (dt_from, dt_to))
         data = cur.fetchall()
         con.close()
