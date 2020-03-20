@@ -23,7 +23,7 @@ class Service:
     def add_health_measurements_params(params, patient_id):
         con = sqlite3.connect('health_weather_correlation.db')
         cur = con.cursor()
-        cur.execute('INSERT INTO health_measurements(datetime, upper_arterial_pressure, lower_arterial_pressure, chss,'
+        cur.execute('INSERT INTO health_measurements(date, upper_arterial_pressure, lower_arterial_pressure, chss,'
                     'variab, angle, symmetry, patient_id, patients_state) '
                     'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     (params[0], params[1], params[2], params[3], params[4], params[5], params[6], patient_id, params[7]))
@@ -84,6 +84,23 @@ class Service:
         return result
 
     @staticmethod
+    def get_all_patients_params_date_filter(patients_id, from_date, to_date, patients_state):
+        con = sqlite3.connect('health_weather_correlation.db')
+        cur = con.cursor()
+        dt_from = datetime.strptime(from_date, '%d.%m.%Y')
+        dt_to = datetime.strptime(to_date, '%d.%m.%Y')
+
+        cur.execute('SELECT symmetry FROM'
+                    ' health_measurements where patient_id = ? and date >= ? and date <= ? and patients_state = ?'
+                    , (patients_id, dt_from, dt_to, patients_state))
+        data = cur.fetchall()
+        con.close()
+        result = []
+        for d in data:
+            result.append(d[0])
+        return result
+
+    @staticmethod
     def get_all_weather_date_filter_count(from_date, to_date):
         con = sqlite3.connect('health_weather_correlation.db')
         cur = con.cursor()
@@ -93,6 +110,47 @@ class Service:
         cur.execute('SELECT count(*) FROM weather_measurements where date >= ? and date <= ?'
                     , (dt_from, dt_to))
         data = cur.fetchone()[0]
-        Service.get_all_weather_measurements_params()
         con.close()
         return data
+
+    @staticmethod
+    def get_weather_measurement(from_date, to_date, parameter):
+        con = sqlite3.connect('health_weather_correlation.db')
+        cur = con.cursor()
+        dt_from = datetime.strptime(from_date, '%d.%m.%Y')
+        dt_to = datetime.strptime(to_date, '%d.%m.%Y')
+
+        cur.execute('SELECT {} FROM weather_measurements where date >= ? and date <= ?'.format(parameter)
+                    , (dt_from, dt_to))
+        data = cur.fetchall()
+        con.close()
+        result = []
+        for d in data:
+            result.append(d[0])
+        return result
+
+    @staticmethod
+    def get_max_date():
+        con = sqlite3.connect('health_weather_correlation.db')
+        cur = con.cursor()
+
+        cur.execute('SELECT max(date) FROM weather_measurements')
+        date_weather = cur.fetchone()[0]
+        cur.execute('SELECT max(date) FROM health_measurements')
+        date_health = cur.fetchone()[0]
+        con.close()
+        mini = min(date_health, date_weather)
+        return datetime.strptime(mini, '%Y-%m-%d %H:%M:%S')
+
+    @staticmethod
+    def get_min_date():
+        con = sqlite3.connect('health_weather_correlation.db')
+        cur = con.cursor()
+
+        cur.execute('SELECT min(date) FROM weather_measurements')
+        date_weather = cur.fetchone()[0]
+        cur.execute('SELECT min(date) FROM health_measurements')
+        date_health = cur.fetchone()[0]
+        con.close()
+        maxi = max(date_health, date_weather)
+        return datetime.strptime(maxi, '%Y-%m-%d %H:%M:%S')

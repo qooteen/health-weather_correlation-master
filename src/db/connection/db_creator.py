@@ -65,7 +65,7 @@ class DBCreator:
                     'angle REAL,'
                     'symmetry REAL,'
                     'patient_id INTEGER,'
-                    'patients_state TEXT,'
+                    'patients_state INTEGER,'
                     'physical_state TEXT,'
                     'FOREIGN KEY (patient_id) REFERENCES patients(patient_id))')
 

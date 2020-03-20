@@ -15,11 +15,13 @@ from src.frames.utils.popup_creation import Ui_Form
 from src.frames.utils.popup_update import Ui_Form_update
 from src.db.service.db_service import Service
 
-SAMPLE_ITEMS = ['Приземная скорость ветра', 'Приземная температура', 'Приземная влажность',
-                'Приземное давление', 'BX', 'BY', 'BZ', 'B-Vector', 'Плотность протонов солнеччного ветра',
-                'Скорость плазмы солнечного ветра', 'Давление солнечного ветра', 'КР', 'Радиоизлучение',
-                'Рентгеновское излучение Солнца-1', 'Рентгеновское излучение Солнца-2', 'Ультрофиолет-A',
-                'Ультрофиолет-A', 'Ультрофиолет-B', 'Ультрофиолет-C']
+STANDART_ITEMS = {'Приземная скорость ветра': 'surface_wind_speed', 'Приземная температура': 'surface_temp',
+                'Приземная влажность': 'surface_wet', 'Приземное давление': 'surface_press', 'BX': 'bx_mmp', 'BY': 'by_mmp',
+                'BZ': 'bz_mmp', 'B-Vector': 'b_vector_mmp', 'Плотность протонов солнеччного ветра': 'proton_density',
+                'Скорость плазмы солнечного ветра': 'plasma_speed', 'Давление солнечного ветра': 'press_sun_wind',
+                'КР': 'kp_index', 'Радиоизлучение': 'radio_emission', 'Рентгеновское излучение Солнца-1': 'xray_sun_one',
+                'Рентгеновское излучение Солнца-2': 'xray_sun_two', 'Ультрофиолет-A': 'ultraviolet_a',
+                'Ультрофиолет-B': 'ultraviolet_b', 'Ультрофиолет-C': 'ultraviolet_c'}
 
 matplotlib.use("Qt5Agg")
 
@@ -77,6 +79,8 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         self.ui.pushButton_2.clicked.connect(self.close_creation_popup)
         self.pushButton_add.clicked.connect(self.open_update_popup)
         self.ui_update.pushButton.clicked.connect(self.add_sample_btn_clicked)
+        self.from_date.setDate(Service.get_min_date())
+        self.to_date.setDate(Service.get_max_date())
 
         # Обновление боксов и фрейма данных
         self.set_data_frame(QFrameDefault)
@@ -163,7 +167,8 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         self.update_boxes()
 
     def update_boxes(self):
-
+        Sample.samples = {}
+        Standard.standards = {}
         self.from_date.text()
         self.to_date.text()
         std_items = []
@@ -173,14 +178,25 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         to_date = self.to_date.text()
         self.samples_list = Service.get_all_patients_full_name_date_filter(from_date, to_date)
         if int(Service.get_all_weather_date_filter_count(from_date, to_date)) != 0:
-            self.stds_list = SAMPLE_ITEMS
+            self.stds_list = [*STANDART_ITEMS.keys()]
         else:
             self.stds_list = []
-        if len(self.samples_list) == 0:
-            self.samples_list.append("--Групповой--")
         if self.stds_list is not None:
+            for standart in STANDART_ITEMS.keys():
+                weather_params = Service.get_weather_measurement(from_date, to_date, STANDART_ITEMS.get(standart))
+                Standard(standart, weather_params)
             std_items = ["Погода: " + str(self.stds_list[i]) for i in range(len(self.stds_list))]
         if self.samples_list is not None:
+            symmetry_all_state = []
+            for sample in self.samples_list:
+                patients_id = sample.split('(')[1].split(')')[0]
+                symmetry_all_state.append(Service.get_all_patients_params_date_filter(patients_id, from_date, to_date, 1))
+                symmetry_all_state.append(Service.get_all_patients_params_date_filter(patients_id, from_date, to_date, 2))
+                symmetry_all_state.append(Service.get_all_patients_params_date_filter(patients_id, from_date, to_date, 3))
+                symmetry_all_state.append(Service.get_all_patients_params_date_filter(patients_id, from_date, to_date, 4))
+                Sample(sample, symmetry_all_state)
+            if len(self.samples_list) != 0:
+                self.samples_list.append("--Групповой--")
             sample_items = ["Образец: " + str(self.samples_list[i]) for i in range(len(self.samples_list))]
         self.lead_box.addItems(std_items + sample_items)
 
@@ -203,8 +219,8 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
 
     def choose_data_frame(self):
         orientation = self.lead_box.currentText().split(' ')[0] == "Погода:"
-        lead = self.lead_box.currentText().split(' ')[1]
-        slave = self.slave_box.currentText().split(' ')[1]
+        lead = self.lead_box.currentText().split(': ')[1]
+        slave = self.slave_box.currentText().split(': ')[1]
 
         # Погода - образец
         if orientation:

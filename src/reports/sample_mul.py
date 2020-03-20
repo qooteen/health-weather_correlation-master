@@ -1,9 +1,9 @@
-from science import plot_image, FACTORS, FACTORS_L
-from science.funcs import *
-from science.classes import Standard, Sample
+from src.science import plot_image, FACTORS, FACTORS_L
+from src.science.funcs import *
+from src.science.classes import Standard, Sample
 
-from reports import Printer, str_arr, report_error
-from reports.utils import report_ntest, report_stats
+from src.reports import Printer, str_arr, report_error
+from src.reports.utils import report_ntest, report_stats
 
 
 class FactorSampleMulStandards:

@@ -3,7 +3,7 @@ from io import BytesIO
 
 from docx import Document
 
-from science import ScienceError
+from src.science import ScienceError
 
 PATH_DEV = r"src/docx/templates/default.docx"
 PATH_EXE = r"default.docx"

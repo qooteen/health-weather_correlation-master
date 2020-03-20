@@ -1,11 +1,11 @@
 # Ведущий ряд - эталон
 # Писать в заголовке ведущий ряд - ведомый ряд
-from reports import report_error
-from reports.utils import *
+from src.reports import report_error
+from src.reports.utils import *
 
-from science import plot_image, FACTORS_L
-from science.funcs import *
-from science.classes import Standard, Sample
+from src.science import plot_image, FACTORS_L
+from src.science.funcs import *
+from src.science.classes import Standard, Sample
 
 
 class StandardFactorSample:

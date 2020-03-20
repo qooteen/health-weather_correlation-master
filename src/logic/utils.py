@@ -2,20 +2,20 @@ from PyQt5.QtWidgets import QCheckBox, QDialog, QDialogButtonBox, QTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 
-from logic import QFrameBase, error_dialog
+from src.logic import QFrameBase, error_dialog
 
-from frames.default import Ui_FrameDefault
-from frames.utils.info import Ui_FrameInfo
-from frames.utils.kde import Ui_FrameKde
-from frames.utils.image import Ui_FrameImage
-from frames.utils.text import Ui_FrameText
-from frames.utils.standard_type import Ui_FrameStandardType
-from frames.dialogs.stds import Ui_DialogStds
+from src.frames.default import Ui_FrameDefault
+from src.frames.utils.info import Ui_FrameInfo
+from src.frames.utils.kde import Ui_FrameKde
+from src.frames.utils.image import Ui_FrameImage
+from src.frames.utils.text import Ui_FrameText
+from src.frames.utils.standard_type import Ui_FrameStandardType
+from src.frames.dialogs.stds import Ui_DialogStds
 
-from reports import print_report
+from src.reports import print_report
 
-from science import FACTORS_ALL
-from science.classes import Standard
+from src.science import FACTORS_ALL
+from src.science.classes import Standard
 
 
 class QFrameDefault(QFrameBase, Ui_FrameDefault):

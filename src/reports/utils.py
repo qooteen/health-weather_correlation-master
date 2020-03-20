@@ -1,10 +1,10 @@
 from docx.shared import Cm
 
-from science import plot_image, FACTORS
-from science.funcs import test_normal_plot
-from science.classes import Standard, Sample
+from src.science import plot_image, FACTORS
+from src.science.funcs import test_normal_plot
+from src.science.classes import Standard, Sample
 
-from reports import Printer, str_arr
+from src.reports import Printer, str_arr
 
 
 def report_ntest(report, doc: Printer):

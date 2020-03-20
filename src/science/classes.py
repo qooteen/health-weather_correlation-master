@@ -3,8 +3,6 @@ import numpy as np
 
 from src import science
 
-DATA_LENGTH_DEFAULT = -1
-DATA_LENGTH = DATA_LENGTH_DEFAULT
 GROUP_SAMPLE_NAME = 'group'
 
 
@@ -30,12 +28,12 @@ class Sample:
         if self.name == GROUP_SAMPLE_NAME:
             return
         if Sample.group is None:
-            datas = [[0] * DATA_LENGTH for _factor in range(4)]
+            datas = [[0] * len(self.data[0]) for _factor in range(4)]
             Sample.group = Sample(GROUP_SAMPLE_NAME, datas)
             print('Групповой образец инициализирован')
         # обновляем групповой образец
         for factor in range(4):
-            for idx in range(DATA_LENGTH):
+            for idx in range(len(self.data[0])):
                 Sample.group.data[factor][idx] += self.data[factor][idx]
         Sample.group.seq_max = [funcs.sequence_max(data) for data in Sample.group.data]
         Sample.group.seq_max0 = [funcs.sequence_max0(data) for data in Sample.group.data]
