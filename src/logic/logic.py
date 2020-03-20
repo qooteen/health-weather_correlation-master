@@ -1,6 +1,7 @@
 import sys
 import matplotlib
 
+from datetime import datetime
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QHBoxLayout, QWidget, QLabel, QMainWindow, QTextEdit
 from PyQt5.QtCore import QEvent, Qt
@@ -88,27 +89,28 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         self.show()
 
     def set_creation_popup_params(self):
-        name = self.ui.lineEdit_name.text()
-        surname = self.ui.lineEdit_surname.text()
-        patronymic = self.ui.lineEdit_patr.text()
-        age = self.ui.lineEdit_age.text()
-        sex = self.ui.radioButton_sex.text() \
-            if self.ui.radioButton_sex2.text() is None else self.ui.radioButton_sex2.text()
-        birthday = self.ui.date_birth.text()
-        stay_in_north = self.ui.lineEdit_north.text()
-        part_in_geliomed = self.ui.lineEdit_geliomed.text()
+        name = self.ui.lineEdit_name.text().strip() if self.ui.lineEdit_name.text().strip() is not '' else \
+            self.ui.lineEdit_name.setStyleSheet("color: red;")
+        surname = self.ui.lineEdit_surname.text().strip()
+        patronymic = self.ui.lineEdit_patr.text().strip()
+        age = self.ui.lineEdit_age.text().strip()
+        sex = self.ui.radioButton_sex.text().strip() \
+            if self.ui.radioButton_sex2.text().strip() is None else self.ui.radioButton_sex2.text().strip()
+        birthday = self.ui.date_birth.text().strip()
+        stay_in_north = self.ui.lineEdit_north.text().strip()
+        part_in_geliomed = self.ui.lineEdit_geliomed.text().strip()
         obesity = self.ui.checkBox_obesity.checkState()
-        weight = self.ui.lineEdit_weight.text()
-        height = self.ui.lineEdit_height.text()
-        imt = self.ui.lineEdit_imt.text()
-        alcohol = self.ui.lineEdit_alco.text()
+        weight = self.ui.lineEdit_weight.text().strip()
+        height = self.ui.lineEdit_height.text().strip()
+        imt = self.ui.lineEdit_imt.text().strip()
+        alcohol = self.ui.lineEdit_alco.text().strip()
         physical_inactivity = self.ui.checkBox_gipo.checkState()
-        monitoring_point = self.ui.lineEdit_mon_point.text()
-        nationality = self.ui.lineEdit_nation.text()
-        birth_place = self.ui.lineEdit_birth_place.text()
-        smoking = self.ui.lineEdit_smoke.text()
-        ag_heredity = self.ui.lineEdit_ag.text()
-        sss_heredity = self.ui.lineEdit_sss.text()
+        monitoring_point = self.ui.lineEdit_mon_point.text().strip()
+        nationality = self.ui.lineEdit_nation.text().strip()
+        birth_place = self.ui.lineEdit_birth_place.text().strip()
+        smoking = self.ui.lineEdit_smoke.text().strip()
+        ag_heredity = self.ui.lineEdit_ag.text().strip()
+        sss_heredity = self.ui.lineEdit_sss.text().strip()
         params = {'name': name, 'surname': surname, 'patronymic': patronymic, 'age': age, 'sex': sex,
                   'birthday': birthday, 'stay_in_north': stay_in_north, 'part_in_geliomed': part_in_geliomed,
                   'obesity': obesity, 'weight': weight, 'height': height, 'imt': imt, 'alcohol': alcohol,
@@ -151,6 +153,8 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
         patients_id = self.ui_update.sampels_box.currentText().split('(')[1].split(')')[0]
         for data in datas:
             Service.add_health_measurements_params(data, patients_id)
+        self.from_date.setDate(Service.get_min_date())
+        self.to_date.setDate(Service.get_max_date())
         self.update_boxes()
 
     def add_std(self, fname):
@@ -164,9 +168,18 @@ class Main(Ui_MainBaseForm, Ui_Form, Ui_Form_update):
             return
         for data in datas:
             Service.add_weather_measurements_params(data)
+        self.from_date.setDate(Service.get_min_date())
+        self.to_date.setDate(Service.get_max_date())
         self.update_boxes()
 
     def update_boxes(self):
+        if self.to_date.date() > Service.get_max_date():
+            error_dialog('Ошибка! Дата не должна превосходить максимально возможную: ' + Service.get_max_date().strftime('%d.%m.%Y'))
+            self.to_date.setDate(Service.get_max_date())
+        if self.from_date.date() < Service.get_min_date():
+            error_dialog('Ошибка! Дата не должна быть меньше минимальной возможной: ' + Service.get_min_date().strftime('%d.%m.%Y'))
+            self.from_date.setDate(Service.get_min_date())
+
         Sample.samples = {}
         Standard.standards = {}
         self.from_date.text()

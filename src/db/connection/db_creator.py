@@ -58,15 +58,15 @@ class DBCreator:
         cur.execute('CREATE TABLE IF NOT EXISTS health_measurements(health_measurement_id '
                     'INTEGER PRIMARY KEY AUTOINCREMENT,'
                     'date NUMERIC,'
+                    'symmetry REAL,'
                     'upper_arterial_pressure INTEGER,'
                     'lower_arterial_pressure INTEGER,'
                     'chss REAL,'
                     'variab REAL,'
                     'angle REAL,'
-                    'symmetry REAL,'
-                    'patient_id INTEGER,'
                     'patients_state INTEGER,'
                     'physical_state TEXT,'
+                    'patient_id INTEGER,'
                     'FOREIGN KEY (patient_id) REFERENCES patients(patient_id))')
 
         cur.execute('CREATE TABLE IF NOT EXISTS polymorphisms(polymorphism_id '

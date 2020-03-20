@@ -76,10 +76,12 @@ def read_xlsx_sample(filename):
 
     for i in range(2, rows + 1):
         data = []
-        for j in range(1, 8 + 1):
+        for j in range(1, 9 + 1):
             try:
                 cell = sheet.cell(row=i, column=j)
                 if sheet.cell(1, j).value == "date":
+                    data.append(str(cell.value))
+                elif sheet.cell(1, j).value == "physical_state":
                     data.append(str(cell.value))
                 else:
                     data.append(float(cell.value))

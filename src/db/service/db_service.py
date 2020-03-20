@@ -23,10 +23,11 @@ class Service:
     def add_health_measurements_params(params, patient_id):
         con = sqlite3.connect('health_weather_correlation.db')
         cur = con.cursor()
-        cur.execute('INSERT INTO health_measurements(date, upper_arterial_pressure, lower_arterial_pressure, chss,'
-                    'variab, angle, symmetry, patient_id, patients_state) '
-                    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    (params[0], params[1], params[2], params[3], params[4], params[5], params[6], patient_id, params[7]))
+        cur.execute('INSERT INTO health_measurements(date, symmetry, upper_arterial_pressure, lower_arterial_pressure, chss,'
+                    'variab, angle, patients_state, physical_state, patient_id) '
+                    'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    (params[0], params[1], params[2], params[3], params[4], params[5], params[6], params[7], params[8],
+                     patient_id))
         con.commit()
         con.close()
 
@@ -139,6 +140,12 @@ class Service:
         cur.execute('SELECT max(date) FROM health_measurements')
         date_health = cur.fetchone()[0]
         con.close()
+        if date_weather is None and date_health is not None:
+            return datetime.strptime(date_health, '%Y-%m-%d %H:%M:%S')
+        elif date_health is None and date_weather is not None:
+            return datetime.strptime(date_weather, '%Y-%m-%d %H:%M:%S')
+        elif date_weather is None and date_health is  None:
+            return datetime.strptime('1900-01-01 00:00:00', '%Y-%m-%d %H:%M:%S')
         mini = min(date_health, date_weather)
         return datetime.strptime(mini, '%Y-%m-%d %H:%M:%S')
 
@@ -146,11 +153,16 @@ class Service:
     def get_min_date():
         con = sqlite3.connect('health_weather_correlation.db')
         cur = con.cursor()
-
         cur.execute('SELECT min(date) FROM weather_measurements')
         date_weather = cur.fetchone()[0]
         cur.execute('SELECT min(date) FROM health_measurements')
         date_health = cur.fetchone()[0]
         con.close()
-        maxi = max(date_health, date_weather)
+        if date_weather is None and date_health is not None:
+            return datetime.strptime(date_health, '%Y-%m-%d %H:%M:%S')
+        elif date_health is None and date_weather is not None:
+            return datetime.strptime(date_weather, '%Y-%m-%d %H:%M:%S')
+        elif date_weather is None and date_health is None:
+            return datetime.strptime('1900-01-01 00:00:00', '%Y-%m-%d %H:%M:%S')
+        maxi = min(date_health, date_weather)
         return datetime.strptime(maxi, '%Y-%m-%d %H:%M:%S')
